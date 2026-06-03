@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		9BF5CC9F89DCED54470CC91D /* groshare_mobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = groshare_mobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC4C73D4E615629ABD33C8D1 /* GroShare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GroShare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		84E4356EBE370ABF8C02AA5E /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		82068F08FC6D0AE0A25E6CB8 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = FB14A91B6167DA2FFF708C66 /* iosApp */;
+			target = 2DFEB46A89C21A6BFC256E0B /* iosApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9291F96A680B6750BB5545B4 /* iosApp */ = {
+		86768CF567D64B87C6ACAFDF /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				84E4356EBE370ABF8C02AA5E /* Exceptions for "iosApp" folder in "iosApp" target */,
+				82068F08FC6D0AE0A25E6CB8 /* Exceptions for "iosApp" folder in "iosApp" target */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
 		};
-		77D7B203D8AD473FF5297D80 /* Configuration */ = {
+		5BE71D3C6FCCE2D00B37626B /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Configuration;
 			sourceTree = "<group>";
@@ -37,7 +37,7 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		6EF8E028692FFE0E9245B483 /* Frameworks */ = {
+		8C27078BFD91A2D3158E0378 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -47,19 +47,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A9943A28C528AE31EE75C94E = {
+		ED1B2C921AC75D8723DACF3A = {
 			isa = PBXGroup;
 			children = (
-				77D7B203D8AD473FF5297D80 /* Configuration */,
-				9291F96A680B6750BB5545B4 /* iosApp */,
-				7B9109D4E1FFD737572CD95E /* Products */,
+				5BE71D3C6FCCE2D00B37626B /* Configuration */,
+				86768CF567D64B87C6ACAFDF /* iosApp */,
+				1DFD178623C2DCC8D17BB470 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		7B9109D4E1FFD737572CD95E /* Products */ = {
+		1DFD178623C2DCC8D17BB470 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9BF5CC9F89DCED54470CC91D /* groshare_mobile.app */,
+				FC4C73D4E615629ABD33C8D1 /* GroShare.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,65 +67,65 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FB14A91B6167DA2FFF708C66 /* iosApp */ = {
+		2DFEB46A89C21A6BFC256E0B /* iosApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 63F56D2D84595337F417FCF9 /* Build configuration list for PBXNativeTarget "iosApp" */;
+			buildConfigurationList = BE7D83CAA605BA597B3AD506 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
-				A74B137F4378B6EC34D1CA13 /* Compile Kotlin Framework */,
-				892A71ED4A228D7E069F8E02 /* Sources */,
-				6EF8E028692FFE0E9245B483 /* Frameworks */,
-				044A4C8787261768A2ED8490 /* Resources */,
+				0A1E9117C3F0B2F611090E65 /* Compile Kotlin Framework */,
+				9407C5A8DAAC2AD2CA5A0324 /* Sources */,
+				8C27078BFD91A2D3158E0378 /* Frameworks */,
+				22429023A34CF7CF08F2D953 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9291F96A680B6750BB5545B4 /* iosApp */,
+				86768CF567D64B87C6ACAFDF /* iosApp */,
 			);
 			name = iosApp;
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 9BF5CC9F89DCED54470CC91D /* groshare_mobile.app */;
+			productReference = FC4C73D4E615629ABD33C8D1 /* GroShare.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		C1FE78E967AA362069848B05 /* Project object */ = {
+		65D486190AAF0E64FEE6C9FD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					FB14A91B6167DA2FFF708C66 = {
+					2DFEB46A89C21A6BFC256E0B = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
-			buildConfigurationList = 00AF09257E179031C4BFC077 /* Build configuration list for PBXProject "iosApp" */;
+			buildConfigurationList = 83ED48F2686CF92F06C8A545 /* Build configuration list for PBXProject "iosApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = A9943A28C528AE31EE75C94E;
+			mainGroup = ED1B2C921AC75D8723DACF3A;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 7B9109D4E1FFD737572CD95E /* Products */;
+			productRefGroup = 1DFD178623C2DCC8D17BB470 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				FB14A91B6167DA2FFF708C66 /* iosApp */,
+				2DFEB46A89C21A6BFC256E0B /* iosApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		044A4C8787261768A2ED8490 /* Resources */ = {
+		22429023A34CF7CF08F2D953 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +135,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A74B137F4378B6EC34D1CA13 /* Compile Kotlin Framework */ = {
+		0A1E9117C3F0B2F611090E65 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -152,12 +152,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		892A71ED4A228D7E069F8E02 /* Sources */ = {
+		9407C5A8DAAC2AD2CA5A0324 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -167,9 +167,9 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		DE200780D51A20AF321B8AD1 /* Debug */ = {
+		D01CB9ACD5D1B0D68E0D6B3A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 77D7B203D8AD473FF5297D80 /* Configuration */;
+			baseConfigurationReferenceAnchor = 5BE71D3C6FCCE2D00B37626B /* Configuration */;
 			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -232,9 +232,9 @@
 			};
 			name = Debug;
 		};
-		204A792EA37186665F397720 /* Release */ = {
+		D0484477249A59783203649C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 77D7B203D8AD473FF5297D80 /* Configuration */;
+			baseConfigurationReferenceAnchor = 5BE71D3C6FCCE2D00B37626B /* Configuration */;
 			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -290,7 +290,7 @@
 			};
 			name = Release;
 		};
-		09598B04C23F535CF8F44708 /* Debug */ = {
+		FB1582A6259741A3D6FC5D28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -318,7 +318,7 @@
 			};
 			name = Debug;
 		};
-		766592FC652BFFDE17AA25B4 /* Release */ = {
+		9F69C02D9B9F426CD3E1B412 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -349,25 +349,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00AF09257E179031C4BFC077 /* Build configuration list for PBXProject "iosApp" */ = {
+		83ED48F2686CF92F06C8A545 /* Build configuration list for PBXProject "iosApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DE200780D51A20AF321B8AD1 /* Debug */,
-				204A792EA37186665F397720 /* Release */,
+				D01CB9ACD5D1B0D68E0D6B3A /* Debug */,
+				D0484477249A59783203649C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		63F56D2D84595337F417FCF9 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
+		BE7D83CAA605BA597B3AD506 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				09598B04C23F535CF8F44708 /* Debug */,
-				766592FC652BFFDE17AA25B4 /* Release */,
+				FB1582A6259741A3D6FC5D28 /* Debug */,
+				9F69C02D9B9F426CD3E1B412 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = C1FE78E967AA362069848B05 /* Project object */;
+	rootObject = 65D486190AAF0E64FEE6C9FD /* Project object */;
 }
