@@ -19,6 +19,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.dariostrm.groshare.auth.LoginView
+import dev.dariostrm.groshare.auth.LoginViewModel
 import org.jetbrains.compose.resources.painterResource
 
 import groshare.shared.generated.resources.Res
@@ -40,10 +42,20 @@ private val config = SavedStateConfiguration {
     }
 }
 
-
+@Composable
+fun TestApp() {
+    MaterialTheme {
+        LoginView(
+            viewModel = remember { LoginViewModel() },
+            onLoggedIn = {}
+        )
+    }
+}
 @Composable
 @Preview
 fun App() {
+    TestApp()
+    return
     MaterialTheme {
         val backStack = rememberNavBackStack(config, Home)
         Column(
