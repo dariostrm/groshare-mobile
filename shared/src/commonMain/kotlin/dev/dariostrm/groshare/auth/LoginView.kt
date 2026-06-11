@@ -20,6 +20,7 @@ import groshare.shared.generated.resources.Res
 import groshare.shared.generated.resources.ic_visibility_filled
 import groshare.shared.generated.resources.ic_visibility_off_filled
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 
 data class LoginState(
     val username: String = "",
@@ -40,7 +41,7 @@ sealed interface LoginAction {
 
 @Composable
 fun LoginView(
-    viewModel: LoginViewModel,
+    viewModel: LoginViewModel = koinViewModel(),
     onLoggedIn: (username: String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
