@@ -1,12 +1,8 @@
 package dev.dariostrm.groshare.auth
 
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import dev.dariostrm.groshare.MviViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -17,30 +13,6 @@ sealed interface LoginEvent {
 class LoginViewModel : MviViewModel<LoginState, LoginAction, LoginEvent>() {
 
     override fun setInitialState(): LoginState = LoginState()
-
-    fun validate(): Boolean {
-        val usernameError = state.value.username.text.toString().validateUsername()
-        val passwordError = state.value.password.text.toString().validatePassword()
-        if (usernameError != null || passwordError != null) {
-            updateState { copy(usernameError = usernameError, passwordError = passwordError) }
-            return false
-        }
-        return true
-    }
-
-    fun validateUsername() {
-        val error = state.value.username.text.toString().validateUsername()
-        if (error != null) {
-            updateState { copy(usernameError = error) }
-        }
-    }
-
-    fun validatePassword() {
-        val error = state.value.password.text.toString().validatePassword()
-        if (error != null) {
-            updateState { copy(passwordError = error) }
-        }
-    }
 
     fun String.validatePassword(): String? {
         if (this.isBlank())
@@ -67,39 +39,24 @@ class LoginViewModel : MviViewModel<LoginState, LoginAction, LoginEvent>() {
     override fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.Login -> {
-                if (!validate())
-                    return
+                val uError = state.value.username.validateUsername()
+                val pError = state.value.password.validatePassword()
+                updateState {
+                    copy(usernameError = uError, passwordError = pError)
+                }
+                if (uError != null || pError != null) return
+
                 updateState { copy(isLoading = true) }
                 viewModelScope.launch {
                     delay(3000.milliseconds) //login
                     updateState { copy(isLoading = false) }
                 }
             }
-            LoginAction.OnPasswordLostFocus -> validatePassword()
-            LoginAction.OnUsernameLostFocus -> validateUsername()
+            is LoginAction.PasswordChanged -> updateState { copy(password = action.password, passwordError = null) }
+            LoginAction.PasswordLostFocus -> updateState { copy(passwordError = this.password.validatePassword()) }
+            is LoginAction.UsernameChanged -> updateState { copy(username = action.username, usernameError = null) }
+            LoginAction.UsernameLostFocus -> updateState { copy(usernameError = this.username.validateUsername()) }
         }
-    }
-
-    init {
-        // 1. Clear Username error on edit
-        snapshotFlow { state.value.username.text }
-            .drop(1) // Ignore the initial empty load
-            .onEach {
-                if (state.value.usernameError != null) {
-                    updateState { copy(usernameError = null) }
-                }
-            }
-            .launchIn(viewModelScope)
-
-        // 2. Clear Password error on edit
-        snapshotFlow { state.value.password.text }
-            .drop(1)
-            .onEach {
-                if (state.value.passwordError != null) {
-                    updateState { copy(passwordError = null) }
-                }
-            }
-            .launchIn(viewModelScope)
     }
 
 }
