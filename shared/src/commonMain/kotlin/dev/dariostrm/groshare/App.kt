@@ -21,6 +21,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.dariostrm.groshare.auth.LoginView
 import dev.dariostrm.groshare.auth.LoginViewModel
+import dev.dariostrm.groshare.di.initializePlatform
 import dev.dariostrm.groshare.di.platformModule
 import dev.dariostrm.groshare.di.sharedModule
 import org.jetbrains.compose.resources.painterResource
@@ -35,13 +36,13 @@ import org.koin.core.KoinApplication
 import org.koin.dsl.koinConfiguration
 
 @Serializable
-data object Home : NavKey
+data object Login : NavKey
 @Serializable
 data class Message(val message: String) : NavKey
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
-            subclass(Home::class, Home.serializer())
+            subclass(Login::class, Login.serializer())
             subclass(Message::class, Message.serializer())
         }
     }
@@ -57,18 +58,18 @@ fun TestApp() {
 @Preview
 fun App() {
     KoinApplication(
-        application = { modules(sharedModule + platformModule) }
+        application = { modules(sharedModule + initializePlatform()) }
     ) {
         MaterialTheme {
-            TestApp()
-            //ActualApp()
+            //TestApp()
+            ActualApp()
         }
     }
 }
 
 @Composable
 fun ActualApp() {
-    val backStack = rememberNavBackStack(config, Home)
+    val backStack = rememberNavBackStack(config, Login)
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
@@ -80,13 +81,8 @@ fun ActualApp() {
             backStack = backStack,
             modifier = Modifier.fillMaxSize(),
             entryProvider = entryProvider {
-                entry<Home> {
-                    Column {
-                        Text("Home Screen")
-                        Button(onClick = { backStack.add(Message("Test message")) }) {
-                            Text("Test")
-                        }
-                    }
+                entry<Login> {
+                    LoginView(onLoggedIn = { backStack.add(Message("Logged In as $it")) })
                 }
                 entry<Message> { message ->
                     Column {

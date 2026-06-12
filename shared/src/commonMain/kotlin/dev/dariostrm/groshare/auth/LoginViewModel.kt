@@ -2,15 +2,18 @@ package dev.dariostrm.groshare.auth
 
 import androidx.lifecycle.viewModelScope
 import dev.dariostrm.groshare.MviViewModel
-import kotlinx.coroutines.delay
+import dev.dariostrm.groshare.ifError
+import dev.dariostrm.groshare.ifOk
+import dev.dariostrm.groshare.then
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 sealed interface LoginEvent {
-    data class LoggedIn(val email: String, val password: String) : LoginEvent
+    data class LoggedIn(val username: String) : LoginEvent
 }
 
-class LoginViewModel : MviViewModel<LoginState, LoginAction, LoginEvent>() {
+class LoginViewModel(
+    private val authService: AuthService,
+) : MviViewModel<LoginState, LoginAction, LoginEvent>() {
 
     override fun setInitialState(): LoginState = LoginState()
 
@@ -24,10 +27,14 @@ class LoginViewModel : MviViewModel<LoginState, LoginAction, LoginEvent>() {
                 }
                 if (uError != null || pError != null) return
 
-                updateState { copy(isLoading = true) }
+                updateState { copy(isLoading = true, loginError = null) }
                 viewModelScope.launch {
-                    delay(3000.milliseconds) //login
-                    updateState { copy(isLoading = false) }
+                    authService.login(state.value.username, state.value.password)
+                        .ifOk {
+                            updateState { copy(isLoading = false, loginError = null) }
+                            sendEvent(LoginEvent.LoggedIn(state.value.username))
+                        }
+                        .ifError { error -> updateState { copy(isLoading = false, loginError = error) } }
                 }
             }
             is LoginAction.PasswordChanged -> updateState { copy(password = action.password, passwordError = null) }

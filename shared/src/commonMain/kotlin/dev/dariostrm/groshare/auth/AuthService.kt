@@ -1,9 +1,21 @@
 package dev.dariostrm.groshare.auth
 
+import com.russhwolf.settings.Settings
+import dev.dariostrm.groshare.Error
 import dev.dariostrm.groshare.Result
+import dev.dariostrm.groshare.SecureSettings
 import dev.dariostrm.groshare.err
 import dev.dariostrm.groshare.ok
+import dev.dariostrm.groshare.ifError
+import dev.dariostrm.groshare.safeRequest
+import dev.dariostrm.groshare.unwrap
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.setBody
+import io.ktor.client.request.url
+import io.ktor.http.HttpMethod
+import io.ktor.http.isSuccess
+import kotlinx.serialization.Serializable
 
 interface AuthService {
     suspend fun login(username: String, password: String) : Result<Unit, String>
@@ -31,13 +43,30 @@ fun String.validateUsername(): String? {
     return null
 }
 
+@Serializable
+data class LoginRequest(val username: String, val password: String)
+
+@Serializable
+data class Token(val token: String)
+
 class AuthServiceImpl(
-    val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val secureSettings: Settings
 ) : AuthService {
 
     override suspend fun login(username: String, password: String): Result<Unit, String> {
         username.validateUsername()?.let { return@login err(it) }
         password.validatePassword()?.let { return@login err(it) }
+
+        val token = httpClient.safeRequest<Token, Error>(
+            onException = { Error(it.message ?: "Unknown error") }
+        ) {
+            method = HttpMethod.Post
+            url("login")
+            setBody(LoginRequest(username, password))
+        }.ifError { return@login err(it.error) }.unwrap()
+
+        secureSettings.putString(SecureSettings.AUTH_TOKEN, token.token)
 
         return ok()
     }

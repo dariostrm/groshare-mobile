@@ -45,10 +45,18 @@ fun LoginView(
     onLoggedIn: (username: String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginEvent.LoggedIn -> onLoggedIn(event.username)
+            }
+        }
+    }
+
     LoginComponent(
         state = state,
         onAction = viewModel::onAction,
-        onLoggedIn = onLoggedIn
     )
 }
 
@@ -60,15 +68,18 @@ fun LoginPreview() {
         password = "",
     )
 
-    LoginComponent(state, onAction = {}, onLoggedIn = {})
+    LoginComponent(state, onAction = {})
 }
 
 @Composable
 fun LoginComponent(
     state: LoginState,
     onAction: (LoginAction) -> Unit,
-    onLoggedIn: (username: String) -> Unit,
 ) {
+    LaunchedEffect(state) {
+
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,9 +154,7 @@ fun LoginComponent(
 
         Button(
             onClick = { onAction(LoginAction.Login) },
-            enabled = state.loginError == null &&
-                    state.usernameError == null &&
-                    state.passwordError == null,
+            enabled = !state.isLoading && state.usernameError == null && state.passwordError == null,
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),

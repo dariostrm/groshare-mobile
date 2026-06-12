@@ -1,8 +1,9 @@
 package dev.dariostrm.groshare.di
 
-import org.koin.core.module.Module
-import org.koin.dsl.module
+import com.russhwolf.settings.PreferencesSettings
+import java.util.prefs.Preferences
 
-actual val platformModule: Module = module {
-
-}
+actual val platformModule: PlatformModule = PlatformModule(
+    settings = { PreferencesSettings(Preferences.userRoot().node("dev.dariostrm.groshare.settings")) },
+    secureSettings = { PreferencesSettings(Preferences.userRoot().node("dev.dariostrm.groshare.secure")) }
+)

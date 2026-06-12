@@ -1,8 +1,12 @@
 package dev.dariostrm.groshare.di
 
-import org.koin.core.module.Module
-import org.koin.dsl.module
+import com.russhwolf.settings.ExperimentalSettingsImplementation
+import com.russhwolf.settings.KeychainSettings
+import com.russhwolf.settings.NSUserDefaultsSettings
+import platform.Foundation.NSUserDefaults
 
-actual val platformModule: Module = module {
-
-}
+@OptIn(ExperimentalSettingsImplementation::class)
+actual val platformModule: PlatformModule = PlatformModule(
+    settings = { NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults) },
+    secureSettings = { KeychainSettings() }
+)

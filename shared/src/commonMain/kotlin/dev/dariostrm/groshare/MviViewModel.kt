@@ -30,7 +30,11 @@ abstract class MviViewModel<S, A, E> : ViewModel() {
 
     protected fun emitEvent(event: E) {
         viewModelScope.launch {
-            _events.emit(event)
+            sendEvent(event)
         }
+    }
+
+    protected suspend fun sendEvent(event: E) {
+        _events.emit(event)
     }
 }
