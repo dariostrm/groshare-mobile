@@ -1,30 +1,31 @@
 package dev.dariostrm.groshare.di
 
-import com.russhwolf.settings.Settings
+import dev.dariostrm.groshare.SecureSettings
+import dev.dariostrm.groshare.Settings
 import dev.dariostrm.groshare.auth.authModule
 import dev.dariostrm.groshare.getHttpClient
-import org.koin.core.qualifier.named
+import eu.anifantakis.lib.ksafe.KSafe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
 
 val appModule = module {
-    single { getHttpClient(get(named(SettingsType.Secure))) }
+    single { CoroutineScope(SupervisorJob() + Dispatchers.Default) } //appScope
+    single { getHttpClient(get()) }
+    single { SecureSettings(get(), get()) }
+    single { Settings(get(), get()) }
 }
 
 val sharedModule = listOf(authModule, appModule)
 
 expect val platformModule: PlatformModule
 
-enum class SettingsType {
-    Default,
-    Secure
-}
 data class PlatformModule (
-    val settings: Scope.() -> Settings,
-    val secureSettings: Scope.() -> Settings,
+    val ksafe: Scope.() -> KSafe,
 )
 
 fun initializePlatform() = module {
-    single<Settings>(named(SettingsType.Default)) { platformModule.settings(this) }
-    single<Settings>(named(SettingsType.Secure)) { platformModule.secureSettings(this) }
+    single<KSafe>() { platformModule.ksafe(this) }
 }

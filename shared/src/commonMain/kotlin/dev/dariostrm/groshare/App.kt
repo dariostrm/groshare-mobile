@@ -1,16 +1,18 @@
 package dev.dariostrm.groshare
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,19 +22,16 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.dariostrm.groshare.auth.LoginView
-import dev.dariostrm.groshare.auth.LoginViewModel
 import dev.dariostrm.groshare.di.initializePlatform
-import dev.dariostrm.groshare.di.platformModule
 import dev.dariostrm.groshare.di.sharedModule
-import org.jetbrains.compose.resources.painterResource
-
-import groshare.shared.generated.resources.Res
-import groshare.shared.generated.resources.compose_multiplatform
+import dev.dariostrm.groshare.theme.darkScheme
+import dev.dariostrm.groshare.theme.lightScheme
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinApplication
-import org.koin.core.KoinApplication
+import org.koin.compose.KoinMultiplatformApplication
+import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.koinConfiguration
 
 @Serializable
@@ -50,19 +49,38 @@ private val config = SavedStateConfiguration {
 
 @Composable
 fun TestApp() {
-    LoginView(
-        onLoggedIn = {}
-    )
+    Column(
+        modifier = Modifier
+            .safeContentPadding()
+            .fillMaxSize(),
+    ) {
+        LoginView(
+            onLoggedIn = {}
+        )
+    }
 }
 @Composable
 @Preview
-fun App() {
-    KoinApplication(
-        application = { modules(sharedModule + initializePlatform()) }
+fun App(
+    lightColorSchemeOverride: ColorScheme? = null,
+    darkColorSchemeOverride: ColorScheme? = null,
+) {
+    @OptIn(KoinExperimentalAPI::class)
+    KoinMultiplatformApplication(
+        config = koinConfiguration {
+            modules(sharedModule + initializePlatform())
+        }
     ) {
-        MaterialTheme {
-            //TestApp()
-            ActualApp()
+        val colorScheme =
+            if (isSystemInDarkTheme()) darkColorSchemeOverride ?: darkScheme
+            else lightColorSchemeOverride ?: lightScheme
+        MaterialTheme(
+            colorScheme = colorScheme,
+        ) {
+            Surface {
+                //TestApp()
+                ActualApp()
+            }
         }
     }
 }
@@ -71,11 +89,10 @@ fun App() {
 fun ActualApp() {
     val backStack = rememberNavBackStack(config, Login)
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primaryContainer)
             .safeContentPadding()
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         NavDisplay(
             backStack = backStack,

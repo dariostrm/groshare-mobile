@@ -76,10 +76,6 @@ fun LoginComponent(
     state: LoginState,
     onAction: (LoginAction) -> Unit,
 ) {
-    LaunchedEffect(state) {
-
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,7 +116,7 @@ fun LoginComponent(
             label = { Text(text = "Password") },
             modifier = Modifier.onFocusChanged { e ->
                 if (e.isFocused) passwordEverFocused = true
-                else if (usernameEverFocused) onAction(LoginAction.PasswordLostFocus)
+                else if (passwordEverFocused) onAction(LoginAction.PasswordLostFocus)
             },
             isError = state.passwordError != null,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),

@@ -1,6 +1,5 @@
 package dev.dariostrm.groshare
 
-import com.russhwolf.settings.Settings
 import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.plugins.*
@@ -11,15 +10,15 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.request
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.utils.io.CancellationException
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 
-fun getHttpClient(secureSettings: Settings): HttpClient {
+fun getHttpClient(secureSettings: SecureSettings): HttpClient {
     return HttpClient() {
         install(Auth) {
             bearer {
                 loadTokens {
-                    val token = secureSettings.getStringOrNull(SecureSettings.AUTH_TOKEN) ?: return@loadTokens null
+                    val token = secureSettings.authToken.value ?: return@loadTokens null
                     BearerTokens(token, null)
                 }
             }
