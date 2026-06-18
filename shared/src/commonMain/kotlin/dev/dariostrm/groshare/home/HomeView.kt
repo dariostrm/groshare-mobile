@@ -1,6 +1,8 @@
 package dev.dariostrm.groshare.home
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -58,7 +60,7 @@ fun HomeComponent(
     Scaffold(
         Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
+            NavigationBar() {
                 var isSelected = selectedTab == Tabs.Groceries
                 NavigationBarItem(
                     selected = isSelected,
@@ -104,15 +106,21 @@ fun HomeComponent(
                             contentDescription = "Debts Page"
                         )
                     },
-                    label = { Text("Debts") }
+                    label = { Text("Profile") }
                 )
             }
         }
-    ) {
-        when (selectedTab) {
-            Tabs.Groceries -> GroceriesView()
-            Tabs.Debts -> Text("Debts Page")
-            Tabs.Profile -> Text("Profile Page")
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            when (selectedTab) {
+                Tabs.Groceries -> GroceriesView()
+                Tabs.Debts -> Text("Debts Page")
+                Tabs.Profile -> Text("Profile Page")
+            }
         }
     }
 }

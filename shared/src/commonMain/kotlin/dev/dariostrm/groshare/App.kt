@@ -79,9 +79,7 @@ fun ActualApp() {
     val backStack = rememberNavBackStack(navConfig, startPage)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .safeContentPadding()
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
     ) {
         NavDisplay(
             backStack = backStack,
