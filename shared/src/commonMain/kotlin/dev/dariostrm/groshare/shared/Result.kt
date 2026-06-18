@@ -1,4 +1,4 @@
-package dev.dariostrm.groshare
+package dev.dariostrm.groshare.shared
 
 sealed interface Result<out T, out TError> {
     data class Ok<out T>(val data: T) : Result<T, Nothing>

@@ -1,13 +1,13 @@
 package dev.dariostrm.groshare.auth
 
 import dev.dariostrm.groshare.Error
-import dev.dariostrm.groshare.Result
-import dev.dariostrm.groshare.SecureSettings
-import dev.dariostrm.groshare.err
-import dev.dariostrm.groshare.ok
-import dev.dariostrm.groshare.ifError
+import dev.dariostrm.groshare.shared.Result
+import dev.dariostrm.groshare.settings.SecureSettings
+import dev.dariostrm.groshare.shared.err
+import dev.dariostrm.groshare.shared.ok
+import dev.dariostrm.groshare.shared.ifError
 import dev.dariostrm.groshare.safeRequest
-import dev.dariostrm.groshare.unwrap
+import dev.dariostrm.groshare.shared.unwrap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url

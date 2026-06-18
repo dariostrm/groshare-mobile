@@ -1,10 +1,9 @@
 package dev.dariostrm.groshare.auth
 
 import androidx.lifecycle.viewModelScope
-import dev.dariostrm.groshare.MviViewModel
-import dev.dariostrm.groshare.ifError
-import dev.dariostrm.groshare.ifOk
-import dev.dariostrm.groshare.then
+import dev.dariostrm.groshare.shared.MviViewModel
+import dev.dariostrm.groshare.shared.ifError
+import dev.dariostrm.groshare.shared.ifOk
 import kotlinx.coroutines.launch
 
 sealed interface LoginEvent {
@@ -20,12 +19,12 @@ class LoginViewModel(
     override fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.Login -> {
-//                val uError = state.value.username.validateUsername()
-//                val pError = state.value.password.validatePassword()
-//                updateState {
-//                    copy(usernameError = uError, passwordError = pError)
-//                }
-//                if (uError != null || pError != null) return
+                val uError = state.value.username.validateUsername()
+                val pError = state.value.password.validatePassword()
+                updateState {
+                    copy(usernameError = uError, passwordError = pError)
+                }
+                if (uError != null || pError != null) return
 
                 updateState { copy(isLoading = true, loginError = null) }
                 viewModelScope.launch {

@@ -1,9 +1,11 @@
 package dev.dariostrm.groshare.di
 
-import dev.dariostrm.groshare.SecureSettings
-import dev.dariostrm.groshare.Settings
+import dev.dariostrm.groshare.settings.SecureSettings
+import dev.dariostrm.groshare.settings.Settings
 import dev.dariostrm.groshare.auth.authModule
 import dev.dariostrm.groshare.getHttpClient
+import dev.dariostrm.groshare.groceries.groceriesModule
+import dev.dariostrm.groshare.home.homeModule
 import eu.anifantakis.lib.ksafe.KSafe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,12 @@ val appModule = module {
     single { Settings(get(), get()) }
 }
 
-val sharedModule = listOf(authModule, appModule)
+val sharedModule = listOf(
+    homeModule,
+    authModule,
+    groceriesModule,
+    appModule
+)
 
 expect val platformModule: PlatformModule
 
