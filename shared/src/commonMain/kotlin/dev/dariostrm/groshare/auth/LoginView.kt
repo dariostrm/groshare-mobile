@@ -161,7 +161,11 @@ fun LoginComponent(
 
         Button(
             onClick = { onAction(LoginAction.Login) },
-            enabled = !state.isLoading && state.usernameError == null && state.passwordError == null,
+            enabled = !state.isLoading &&
+                    state.username.isNotBlank() &&
+                    state.password.isNotBlank() &&
+                    state.usernameError == null &&
+                    state.passwordError == null,
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),

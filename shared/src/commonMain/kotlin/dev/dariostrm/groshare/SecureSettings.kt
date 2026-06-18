@@ -27,8 +27,8 @@ data class KSafeSetting<T>(
                 setAndForget = { ksafe.putDirect(key, it, mode = mode ) },
                 set = {
                     ksafe.put(key, it)
-                    println("Intended ${ksafe.protectionInfo.intendedLevel}, effective level ${ksafe.protectionInfo.effectiveLevel}")
-                    println(ksafe.getKeyInfo(key))
+                    //println("Intended ${ksafe.protectionInfo.intendedLevel}, effective level ${ksafe.protectionInfo.effectiveLevel}")
+                    //println(ksafe.getKeyInfo(key))
                 }
             )
         }

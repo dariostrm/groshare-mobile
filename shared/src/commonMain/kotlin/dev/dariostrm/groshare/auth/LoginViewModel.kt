@@ -20,12 +20,12 @@ class LoginViewModel(
     override fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.Login -> {
-                val uError = state.value.username.validateUsername()
-                val pError = state.value.password.validatePassword()
-                updateState {
-                    copy(usernameError = uError, passwordError = pError)
-                }
-                if (uError != null || pError != null) return
+//                val uError = state.value.username.validateUsername()
+//                val pError = state.value.password.validatePassword()
+//                updateState {
+//                    copy(usernameError = uError, passwordError = pError)
+//                }
+//                if (uError != null || pError != null) return
 
                 updateState { copy(isLoading = true, loginError = null) }
                 viewModelScope.launch {

@@ -3,7 +3,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import com.example.compose.*
 
 val lightScheme = lightColorScheme(
     primary = primaryLight,
