@@ -10,10 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import groshare.shared.generated.resources.Res
@@ -85,6 +88,14 @@ fun LoginComponent(
             text = "Login",
             style = MaterialTheme.typography.titleLarge,
         )
+        Text(buildAnnotatedString {
+            append("Don't have an account? ")
+            withLink(
+                LinkAnnotation.Url("https://groshare.dariostrm.dev/pages/register.html")
+            ) {
+                append("Sign up")
+            }
+        })
 
         var usernameEverFocused by remember { mutableStateOf(false) }
         OutlinedTextField(

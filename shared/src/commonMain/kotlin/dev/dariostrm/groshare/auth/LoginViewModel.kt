@@ -38,9 +38,9 @@ class LoginViewModel(
                 }
             }
             is LoginAction.PasswordChanged -> updateState { copy(password = action.password, passwordError = null) }
-            LoginAction.PasswordLostFocus -> updateState { copy(passwordError = this.password.validatePassword()) }
+            is LoginAction.PasswordLostFocus -> updateState { copy(passwordError = this.password.validatePassword()) }
             is LoginAction.UsernameChanged -> updateState { copy(username = action.username, usernameError = null) }
-            LoginAction.UsernameLostFocus -> updateState { copy(usernameError = this.username.validateUsername()) }
+            is LoginAction.UsernameLostFocus -> updateState { copy(usernameError = this.username.validateUsername()) }
         }
     }
 
