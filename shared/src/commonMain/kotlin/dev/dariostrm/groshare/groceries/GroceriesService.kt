@@ -1,12 +1,10 @@
 package dev.dariostrm.groshare.groceries
 
-import dev.dariostrm.groshare.auth.LoginRequest
 import dev.dariostrm.groshare.safeRequest
 import dev.dariostrm.groshare.shared.*
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
@@ -51,11 +49,10 @@ class GroceriesServiceImpl(
         }
             .ifOk { groceries -> _groceries.value = groceries }
             .ifError { _errors.emit(it) }
-        // No matter who triggered this fetch, restart (Pull-to-refresh, adding an item, or the timer itself)
-        restartPolling()
+        restartPollingTimer()
     }
 
-    private fun restartPolling() {
+    private fun restartPollingTimer() {
         if (!isPolling) return
 
         pollingJob?.cancel()
@@ -67,8 +64,14 @@ class GroceriesServiceImpl(
     }
 
     override fun startPolling() {
+        if (isPolling) return
         isPolling = true
-        restartPolling()
+
+        pollingJob?.cancel()
+
+        pollingJob = pollingScope.launch {
+            refreshGroceries()
+        }
     }
 
     override fun stopPolling() {

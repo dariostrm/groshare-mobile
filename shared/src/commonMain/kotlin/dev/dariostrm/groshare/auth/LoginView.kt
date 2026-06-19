@@ -25,15 +25,6 @@ import groshare.shared.generated.resources.ic_visibility_off_filled
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
-data class LoginState(
-    val username: String = "",
-    val usernameError: String? = null,
-    val password: String = "",
-    val passwordError: String? = null,
-    val isLoading: Boolean = false,
-    val loginError: String? = null,
-)
-
 sealed interface LoginAction {
     data class UsernameChanged(val username: String) : LoginAction
     data object UsernameLostFocus : LoginAction
@@ -49,17 +40,10 @@ fun LoginView(
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is LoginEvent.LoggedIn -> onLoggedIn(event.username)
-            }
-        }
-    }
-
     LoginComponent(
         state = state,
         onAction = viewModel::onAction,
+        onLoggedIn = onLoggedIn,
     )
 }
 
@@ -71,14 +55,18 @@ fun LoginPreview() {
         password = "",
     )
 
-    LoginComponent(state, onAction = {})
+    LoginComponent(state, onAction = {}, onLoggedIn = {})
 }
 
 @Composable
 fun LoginComponent(
     state: LoginState,
     onAction: (LoginAction) -> Unit,
+    onLoggedIn: (username: String) -> Unit,
 ) {
+    LaunchedEffect(state.loggedInAs) {
+        if (state.loggedInAs != null) onLoggedIn(state.loggedInAs)
+    }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

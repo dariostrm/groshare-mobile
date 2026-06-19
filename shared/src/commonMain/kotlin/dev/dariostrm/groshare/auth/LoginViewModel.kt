@@ -6,15 +6,21 @@ import dev.dariostrm.groshare.shared.ifError
 import dev.dariostrm.groshare.shared.ifOk
 import kotlinx.coroutines.launch
 
-sealed interface LoginEvent {
-    data class LoggedIn(val username: String) : LoginEvent
-}
+data class LoginState(
+    val username: String = "",
+    val usernameError: String? = null,
+    val password: String = "",
+    val passwordError: String? = null,
+    val isLoading: Boolean = false,
+    val loginError: String? = null,
+    val loggedInAs: String? = null,
+)
 
 class LoginViewModel(
     private val authService: AuthService,
-) : MviViewModel<LoginState, LoginAction, LoginEvent>() {
+) : MviViewModel<LoginState, LoginAction>() {
 
-    override fun setInitialState(): LoginState = LoginState()
+    override val initialState = LoginState()
 
     override fun onAction(action: LoginAction) {
         when (action) {
@@ -30,8 +36,7 @@ class LoginViewModel(
                 viewModelScope.launch {
                     authService.login(state.value.username, state.value.password)
                         .ifOk {
-                            updateState { copy(isLoading = false, loginError = null) }
-                            sendEvent(LoginEvent.LoggedIn(state.value.username))
+                            updateState { copy(isLoading = false, loginError = null, loggedInAs = state.value.username) }
                         }
                         .ifError { error -> updateState { copy(isLoading = false, loginError = error) } }
                 }

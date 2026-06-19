@@ -25,8 +25,6 @@ import groshare.shared.generated.resources.ic_visibility_off_filled
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
-data object GroceriesState
-
 sealed interface GroceriesAction {
 }
 
