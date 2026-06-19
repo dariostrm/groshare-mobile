@@ -55,13 +55,11 @@ class AuthServiceImpl(
         username.validateUsername()?.let { return@login err(it) }
         password.validatePassword()?.let { return@login err(it) }
 
-        val token = httpClient.safeRequest<Token, Error>(
-            onException = { Error(it.message ?: "Unknown error") }
-        ) {
+        val token = httpClient.safeRequest<Token>() {
             method = HttpMethod.Post
             url("login")
             setBody(LoginRequest(username, password))
-        }.ifError { return@login err(it.error) }.unwrap()
+        }.ifError { return@login err(it) }.unwrap()
 
         secureSettings.authToken.set(token.token)
 

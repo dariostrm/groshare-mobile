@@ -17,6 +17,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 
 fun getHttpClient(secureSettings: SecureSettings): HttpClient {
     return HttpClient() {
@@ -42,17 +43,21 @@ fun getHttpClient(secureSettings: SecureSettings): HttpClient {
 @Serializable
 data class Error(val error: String)
 
-suspend inline fun <reified T, reified E> HttpClient.safeRequest(
-    onException: (Throwable) -> E,
+suspend inline fun <reified T> HttpClient.safeRequest(
+    onException: (Throwable) -> String = { it.message ?: "An exception occurred during the HTTP Request" },
     block: HttpRequestBuilder.() -> Unit
-): Result<T, E> {
+): Result<T, String> {
     return try {
         val response = request { block() }
 
         if (response.status.isSuccess()) {
             ok(response.body<T>())
         } else {
-            err(response.body<E>())
+            try {
+                err(response.body<Error>().error)
+            } catch (_: SerializationException) {
+                err("HTTP Error ${response.status.value}: ${response.status.description}")
+            }
         }
     } catch (e: Exception) {
         if (e is CancellationException) throw e
