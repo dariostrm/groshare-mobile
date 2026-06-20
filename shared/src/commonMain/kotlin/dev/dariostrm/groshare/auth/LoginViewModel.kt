@@ -13,7 +13,6 @@ data class LoginState(
     val passwordError: String? = null,
     val isLoading: Boolean = false,
     val loginError: String? = null,
-    val loggedInAs: String? = null,
 )
 
 class LoginViewModel(
@@ -35,9 +34,6 @@ class LoginViewModel(
                 updateState { copy(isLoading = true, loginError = null) }
                 viewModelScope.launch {
                     authService.login(state.value.username, state.value.password)
-                        .ifOk {
-                            updateState { copy(isLoading = false, loginError = null, loggedInAs = state.value.username) }
-                        }
                         .ifError { error -> updateState { copy(isLoading = false, loginError = error) } }
                 }
             }

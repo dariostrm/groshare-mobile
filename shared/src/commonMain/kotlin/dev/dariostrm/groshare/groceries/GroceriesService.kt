@@ -3,6 +3,7 @@ package dev.dariostrm.groshare.groceries
 import dev.dariostrm.groshare.safeRequest
 import dev.dariostrm.groshare.shared.*
 import io.ktor.client.*
+import io.ktor.client.HttpClient
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.*

@@ -1,12 +1,13 @@
 package dev.dariostrm.groshare.auth
 
-import dev.dariostrm.groshare.Error
 import dev.dariostrm.groshare.shared.Result
-import dev.dariostrm.groshare.settings.SecureSettings
 import dev.dariostrm.groshare.shared.err
 import dev.dariostrm.groshare.shared.ok
 import dev.dariostrm.groshare.shared.ifError
 import dev.dariostrm.groshare.safeRequest
+import dev.dariostrm.groshare.shared.andThen
+import dev.dariostrm.groshare.shared.ifOk
+import dev.dariostrm.groshare.shared.map
 import dev.dariostrm.groshare.shared.unwrap
 import io.ktor.client.HttpClient
 import io.ktor.client.request.setBody
@@ -14,8 +15,10 @@ import io.ktor.client.request.url
 import io.ktor.http.HttpMethod
 import kotlinx.serialization.Serializable
 
-interface AuthService {
+interface AuthService: AuthStateRepository {
+    suspend fun verifySession(): Result<Profile, String>
     suspend fun login(username: String, password: String) : Result<Unit, String>
+    suspend fun logout()
 }
 
 fun String.validatePassword(): String? {
@@ -48,22 +51,45 @@ data class Token(val token: String)
 
 class AuthServiceImpl(
     private val httpClient: HttpClient,
-    private val secureSettings: SecureSettings
-) : AuthService {
+    state: AuthStateRepository,
+) : AuthService, AuthStateRepository by state {
+
+
+    override suspend fun verifySession(): Result<Profile, String> {
+        return getProfile()
+            .ifOk { profile -> onVerifiedToken(profile) }
+            .ifError { onLogout() }
+    }
+
+    private suspend fun getProfile(): Result<Profile, String> {
+        return httpClient.safeRequest<Profile>() {
+            method = HttpMethod.Get
+            url("profile")
+        }
+    }
 
     override suspend fun login(username: String, password: String): Result<Unit, String> {
         username.validateUsername()?.let { return@login err(it) }
         password.validatePassword()?.let { return@login err(it) }
 
-        val token = httpClient.safeRequest<Token>() {
+        return httpClient.safeRequest<Token>() {
             method = HttpMethod.Post
             url("login")
             setBody(LoginRequest(username, password))
-        }.ifError { return@login err(it) }.unwrap()
+        }
+            .ifOk { token -> onLogin(token.token) }
+            .andThen { getProfile() }
+            .ifOk { profile -> onVerifiedToken(profile) }
+            .map { }
+    }
 
-        secureSettings.authToken.set(token.token)
+    override suspend fun logout() {
+        httpClient.safeRequest<Unit> {
+            method = HttpMethod.Post
+            url("logout")
+        }
 
-        return ok()
+        onLogout()
     }
 
 }

@@ -1,5 +1,6 @@
 package dev.dariostrm.groshare
 
+import dev.dariostrm.groshare.auth.AuthStateRepository
 import dev.dariostrm.groshare.settings.SecureSettings
 import dev.dariostrm.groshare.settings.value
 import dev.dariostrm.groshare.shared.Result
@@ -19,8 +20,18 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 
-fun getHttpClient(secureSettings: SecureSettings): HttpClient {
+fun getHttpClient(
+    secureSettings: SecureSettings,
+    authStateRepository: AuthStateRepository,
+): HttpClient {
     return HttpClient() {
+        HttpResponseValidator {
+            validateResponse { response ->
+                if (response.status == HttpStatusCode.Unauthorized) {
+                    authStateRepository.onLogout()
+                }
+            }
+        }
         install(Auth) {
             bearer {
                 loadTokens {
@@ -44,7 +55,7 @@ fun getHttpClient(secureSettings: SecureSettings): HttpClient {
 data class Error(val error: String)
 
 suspend inline fun <reified T> HttpClient.safeRequest(
-    onException: (Throwable) -> String = { it.message ?: "An exception occurred during the HTTP Request" },
+    onException: (Throwable) -> String = { "The server was unreachable" },
     block: HttpRequestBuilder.() -> Unit
 ): Result<T, String> {
     return try {
@@ -52,7 +63,8 @@ suspend inline fun <reified T> HttpClient.safeRequest(
 
         if (response.status.isSuccess()) {
             ok(response.body<T>())
-        } else {
+        }
+        else {
             try {
                 err(response.body<Error>().error)
             } catch (_: SerializationException) {

@@ -49,7 +49,7 @@ inline fun <T, E> Result<T, E>.ifOk(block: (T) -> Unit): Result<T, E> {
     return this
 }
 
-inline fun <T, E> Result<T, E>.then(block: () -> Unit): Result<T, E> {
-    block()
-    return this
+inline fun <T, E, R> Result<T, E>.andThen(block: (T) -> Result<R, E>): Result<R, E> = when (this) {
+    is Result.Ok -> block(this.data)
+    is Result.Error -> this
 }

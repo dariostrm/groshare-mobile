@@ -4,6 +4,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val authModule = module {
+    single<AuthStateRepository> { AuthStateRepositoryImpl(get()) }
     single<AuthService> {
         AuthServiceImpl(
             get(),

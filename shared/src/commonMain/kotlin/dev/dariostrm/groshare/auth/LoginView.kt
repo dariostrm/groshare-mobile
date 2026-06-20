@@ -1,8 +1,10 @@
 package dev.dariostrm.groshare.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,14 +38,12 @@ sealed interface LoginAction {
 @Composable
 fun LoginView(
     viewModel: LoginViewModel = koinViewModel(),
-    onLoggedIn: (username: String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
     LoginComponent(
         state = state,
         onAction = viewModel::onAction,
-        onLoggedIn = onLoggedIn,
     )
 }
 
@@ -55,23 +55,22 @@ fun LoginPreview() {
         password = "",
     )
 
-    LoginComponent(state, onAction = {}, onLoggedIn = {})
+    LoginComponent(state, onAction = {})
 }
 
-@Composable
-fun LoginComponent(
-    state: LoginState,
-    onAction: (LoginAction) -> Unit,
-    onLoggedIn: (username: String) -> Unit,
-) {
-    LaunchedEffect(state.loggedInAs) {
-        if (state.loggedInAs != null) onLoggedIn(state.loggedInAs)
-    }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    @Composable
+    fun LoginComponent(
+        state: LoginState,
+        onAction: (LoginAction) -> Unit,
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        ) {
         Text(
             text = "Login",
             style = MaterialTheme.typography.titleLarge,

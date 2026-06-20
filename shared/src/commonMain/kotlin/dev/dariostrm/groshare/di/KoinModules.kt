@@ -15,7 +15,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { CoroutineScope(SupervisorJob() + Dispatchers.Default) } //appScope
-    single { getHttpClient(get()) }
+    single { getHttpClient(get(), get()) }
     single { SecureSettings(get(), get()) }
     single { Settings(get(), get()) }
 }

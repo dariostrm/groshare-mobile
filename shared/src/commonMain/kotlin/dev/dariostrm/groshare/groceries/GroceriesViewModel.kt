@@ -10,10 +10,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-val groceriesModule = module {
-    viewModelOf(::GroceriesViewModel)
-}
-
 data class GroceriesState(
     val groceries: List<Grocery> = emptyList(),
     val isLoading: Boolean = true,
@@ -29,7 +25,7 @@ class GroceriesViewModel(
 
     init {
         groceriesService.groceries.onEach { groceries ->
-            updateState { copy(groceries = groceries, isLoading = false, isRefreshing = false) }
+            updateState { copy(groceries = groceries, isLoading = false, isRefreshing = false, networkError = null) }
         }.launchIn(viewModelScope)
         groceriesService.errors.onEach { error ->
             updateState { copy(networkError = error, isLoading = false, isRefreshing = false) }
@@ -43,7 +39,16 @@ class GroceriesViewModel(
     }
 
     override fun onAction(action: GroceriesAction) {
-
+        when (action) {
+            is GroceriesAction.DeleteGrocery -> TODO()
+            is GroceriesAction.Refresh -> {
+                viewModelScope.launch {
+                    updateState { copy(isRefreshing = true) }
+                    groceriesService.refreshGroceries()
+                    updateState { copy(isRefreshing = false) }
+                }
+            }
+        }
     }
 
 }

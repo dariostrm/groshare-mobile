@@ -2,11 +2,15 @@ package dev.dariostrm.groshare.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import dev.dariostrm.groshare.groceries.GroceriesView
 import groshare.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -23,12 +27,6 @@ fun HomeView(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-
-        }
-    }
 
     HomeComponent(
         state = state,
@@ -58,7 +56,7 @@ fun HomeComponent(
     var selectedTab by remember { mutableStateOf(Tabs.Groceries) }
 
     Scaffold(
-        Modifier.fillMaxSize(),
+        Modifier.fillMaxSize().imePadding(),
         bottomBar = {
             NavigationBar() {
                 var isSelected = selectedTab == Tabs.Groceries
