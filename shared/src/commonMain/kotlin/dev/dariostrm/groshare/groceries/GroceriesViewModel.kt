@@ -3,18 +3,15 @@ package dev.dariostrm.groshare.groceries
 import androidx.lifecycle.viewModelScope
 import dev.dariostrm.groshare.shared.MviViewModel
 import dev.dariostrm.groshare.shared.ifError
-import dev.dariostrm.groshare.shared.ifOk
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
 
 data class GroceriesState(
     val groceries: List<Grocery> = emptyList(),
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
-    val networkError: String? = null,
+    val groceriesError: String? = null,
 )
 
 class GroceriesViewModel(
@@ -25,10 +22,10 @@ class GroceriesViewModel(
 
     init {
         groceriesService.groceries.onEach { groceries ->
-            updateState { copy(groceries = groceries, isLoading = false, isRefreshing = false, networkError = null) }
+            updateState { copy(groceries = groceries, isLoading = false, isRefreshing = false) }
         }.launchIn(viewModelScope)
-        groceriesService.errors.onEach { error ->
-            updateState { copy(networkError = error, isLoading = false, isRefreshing = false) }
+        groceriesService.error.onEach { error ->
+            updateState { copy(groceriesError = error, isLoading = false, isRefreshing = false) }
         }.launchIn(viewModelScope)
         groceriesService.startPolling()
     }
@@ -48,6 +45,15 @@ class GroceriesViewModel(
                     updateState { copy(isRefreshing = false) }
                 }
             }
+            is GroceriesAction.AddGrocery -> {
+                viewModelScope.launch {
+                    updateState { copy(isRefreshing = true) }
+                    groceriesService.addGrocery(action.name)
+                        .ifError { err -> updateState { copy(groceriesError = err) } }
+                    updateState { copy(isRefreshing = false) }
+                }
+            }
+            is GroceriesAction.GroceriesErrorShown -> updateState { copy(groceriesError = null) }
         }
     }
 

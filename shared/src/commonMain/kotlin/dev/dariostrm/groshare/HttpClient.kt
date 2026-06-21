@@ -3,11 +3,14 @@ package dev.dariostrm.groshare
 import dev.dariostrm.groshare.auth.AuthStateRepository
 import dev.dariostrm.groshare.settings.SecureSettings
 import dev.dariostrm.groshare.settings.value
+import dev.dariostrm.groshare.shared.NetworkHealthStore
 import dev.dariostrm.groshare.shared.Result
 import dev.dariostrm.groshare.shared.err
 import dev.dariostrm.groshare.shared.ok
 import io.ktor.client.*
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -23,12 +26,22 @@ import kotlinx.serialization.SerializationException
 fun getHttpClient(
     secureSettings: SecureSettings,
     authStateRepository: AuthStateRepository,
+    networkHealthStore: NetworkHealthStore
 ): HttpClient {
     return HttpClient() {
         HttpResponseValidator {
+            handleResponseExceptionWithRequest { exception, _ ->
+                when (exception) {
+                    is SocketTimeoutException,
+                    is ConnectTimeoutException,
+                    is HttpRequestTimeoutException -> networkHealthStore.reportOffline()
+                }
+            }
             validateResponse { response ->
                 if (response.status == HttpStatusCode.Unauthorized) {
                     authStateRepository.onLogout()
+                } else if (response.status.isSuccess()) {
+                    networkHealthStore.reportOnline()
                 }
             }
         }

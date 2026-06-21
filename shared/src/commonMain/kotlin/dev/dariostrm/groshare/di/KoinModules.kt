@@ -6,6 +6,8 @@ import dev.dariostrm.groshare.auth.authModule
 import dev.dariostrm.groshare.getHttpClient
 import dev.dariostrm.groshare.groceries.groceriesModule
 import dev.dariostrm.groshare.home.homeModule
+import dev.dariostrm.groshare.shared.NetworkHealthStore
+import dev.dariostrm.groshare.shared.NetworkHealthStoreImpl
 import eu.anifantakis.lib.ksafe.KSafe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,9 +17,10 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { CoroutineScope(SupervisorJob() + Dispatchers.Default) } //appScope
-    single { getHttpClient(get(), get()) }
+    single { getHttpClient(get(), get(), get()) }
     single { SecureSettings(get(), get()) }
     single { Settings(get(), get()) }
+    single<NetworkHealthStore> { NetworkHealthStoreImpl() }
 }
 
 val sharedModule = listOf(

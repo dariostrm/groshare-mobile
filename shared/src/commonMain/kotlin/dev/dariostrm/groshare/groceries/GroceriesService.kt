@@ -16,12 +16,12 @@ import kotlin.time.Duration.Companion.seconds
 data class Grocery(
     val id: Long,
     val name: String,
-    val addedByUser: String,
+    val addedByUsername: String,
 )
 
 interface GroceriesService {
     val groceries: StateFlow<List<Grocery>>
-    val errors: SharedFlow<String>
+    val error: StateFlow<String?>
     suspend fun refreshGroceries()
     fun startPolling()
     fun stopPolling()
@@ -36,8 +36,8 @@ class GroceriesServiceImpl(
     private val _groceries = MutableStateFlow<List<Grocery>>(emptyList())
     override val groceries = _groceries.asStateFlow()
 
-    private val _errors = MutableSharedFlow<String>()
-    override val errors = _errors.asSharedFlow()
+    private val _error = MutableStateFlow<String?>(null)
+    override val error = _error.asStateFlow()
 
     private var isPolling = false
     private var pollingJob: Job? = null
@@ -48,8 +48,11 @@ class GroceriesServiceImpl(
             method = HttpMethod.Get
             url("apartment/groceries")
         }
-            .ifOk { groceries -> _groceries.value = groceries }
-            .ifError { _errors.emit(it) }
+            .ifOk { groceries ->
+                _groceries.update { groceries }
+                _error.update { null }
+            }
+            .ifError { _error.update { it } }
         restartPollingTimer()
     }
 
