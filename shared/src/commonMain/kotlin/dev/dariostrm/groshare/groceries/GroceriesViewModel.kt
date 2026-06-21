@@ -37,7 +37,14 @@ class GroceriesViewModel(
 
     override fun onAction(action: GroceriesAction) {
         when (action) {
-            is GroceriesAction.DeleteGrocery -> TODO()
+            is GroceriesAction.DeleteGrocery -> {
+                viewModelScope.launch {
+                    updateState { copy(isRefreshing = true) }
+                    groceriesService.deleteGrocery(action.id)
+                        .ifError { err -> updateState { copy(groceriesError = err) } }
+                    updateState { copy(isRefreshing = false) }
+                }
+            }
             is GroceriesAction.Refresh -> {
                 viewModelScope.launch {
                     updateState { copy(isRefreshing = true) }

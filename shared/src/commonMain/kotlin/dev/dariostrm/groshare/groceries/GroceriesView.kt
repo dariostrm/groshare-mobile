@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -23,8 +24,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import groshare.shared.generated.resources.Res
+import groshare.shared.generated.resources.ic_account_circle_filled
 import groshare.shared.generated.resources.ic_add
+import groshare.shared.generated.resources.ic_delete
 import groshare.shared.generated.resources.ic_error_filled
+import groshare.shared.generated.resources.ic_more_vert
 import groshare.shared.generated.resources.ic_refresh
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -180,11 +184,67 @@ fun AddGroceryDialog(
 fun GroceryItem(
     grocery: Grocery,
     onDeleteClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(grocery.name)
+
+        Surface(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_account_circle_filled),
+                contentDescription = "Added by user",
+                modifier = Modifier.padding(8.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = grocery.name,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+
+        Box {
+            IconButton(onClick = { showMenu = true }) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_more_vert),
+                    contentDescription = "Grocery options"
+                )
+            }
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_delete),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    onClick = {
+                        showMenu = false
+                        onDeleteClick(grocery.id)
+                    }
+                )
+            }
+        }
     }
 }
 
