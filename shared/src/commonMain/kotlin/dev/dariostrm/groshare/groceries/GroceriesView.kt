@@ -1,6 +1,7 @@
 package dev.dariostrm.groshare.groceries
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -195,26 +196,26 @@ fun GroceryItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Surface(
-            modifier = Modifier.size(40.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_account_circle_filled),
-                contentDescription = "Added by user",
-                modifier = Modifier.padding(8.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        UsernameAvatar(
+            username = grocery.addedByUsername,
+            modifier = Modifier,
+            isDarkMode = isSystemInDarkTheme()
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Text(
-            text = grocery.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
-        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = grocery.name,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "added by ${grocery.addedByUsername}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+            )
+        }
 
         Box {
             IconButton(onClick = { showMenu = true }) {
