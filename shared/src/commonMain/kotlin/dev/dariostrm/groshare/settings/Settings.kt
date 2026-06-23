@@ -18,4 +18,6 @@ class Settings(
             mode = KSafeWriteMode.Plain)
     }
 
+    val isDarkMode = define<Boolean?>("isDarkMode", null)
+
 }

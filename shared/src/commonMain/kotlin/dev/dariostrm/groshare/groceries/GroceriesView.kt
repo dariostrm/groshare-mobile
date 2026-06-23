@@ -70,6 +70,10 @@ fun GroceriesComponent(
     state: GroceriesState,
     onAction: (GroceriesAction) -> Unit,
 ) {
+    LaunchedEffect(Unit) {
+        onAction(GroceriesAction.Refresh)
+    }
+
     if (state.isLoading && state.groceriesError == null)
         GroceriesLoading()
     else if (state.groceries.isEmpty() && state.groceriesError != null) {
@@ -209,10 +213,11 @@ fun BuyGroceriesDialog(
 
                     val parsedTotal = equalTotalInput.toFloatOrNull() ?: 0f
                     val perItem = if (groceries.isNotEmpty()) parsedTotal / groceries.size else 0f
+                    val formattedPerItem = ((perItem * 100).toInt().toFloat() / 100).toString()
 
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Each item: $${String.format("%.2f", perItem)}",
+                        text = "Each item: $${formattedPerItem}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -240,11 +245,12 @@ fun BuyGroceriesDialog(
                         }
 
                         val currentSum = itemizedInputs.values.sumOf { (it.toFloatOrNull() ?: 0f).toDouble() }
+                        val formattedSum = ((currentSum * 100).toInt().toDouble() / 100).toString()
                         Spacer(modifier = Modifier.height(8.dp))
                         HorizontalDivider()
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Total: $${String.format("%.2f", currentSum)}",
+                            text = "Total: $${formattedSum}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.align(Alignment.End)
@@ -270,6 +276,7 @@ fun BuyGroceriesDialog(
             ) {
                 Text("Submit")
             }
+        },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }

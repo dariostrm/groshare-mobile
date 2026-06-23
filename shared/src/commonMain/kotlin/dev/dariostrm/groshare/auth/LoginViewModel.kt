@@ -23,6 +23,7 @@ class LoginViewModel(
 
     override fun onAction(action: LoginAction) {
         when (action) {
+            is LoginAction.Reset -> updateState { initialState }
             is LoginAction.Login -> {
                 val uError = state.value.username.validateUsername()
                 val pError = state.value.password.validatePassword()

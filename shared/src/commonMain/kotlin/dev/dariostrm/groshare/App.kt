@@ -1,10 +1,12 @@
 package dev.dariostrm.groshare
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +42,8 @@ import dev.dariostrm.groshare.di.sharedModule
 import dev.dariostrm.groshare.home.HomeView
 import dev.dariostrm.groshare.shared.NetworkHealthStore
 import dev.dariostrm.groshare.shared.ifError
+import dev.dariostrm.groshare.settings.Settings
+import dev.dariostrm.groshare.settings.value
 import dev.dariostrm.groshare.theme.darkScheme
 import dev.dariostrm.groshare.theme.lightScheme
 import groshare.shared.generated.resources.Res
@@ -72,59 +76,70 @@ fun App(
             modules(sharedModule + initializePlatform())
         }
     ) {
-        val colorScheme =
-            if (isSystemInDarkTheme()) darkColorSchemeOverride ?: darkScheme
-            else lightColorSchemeOverride ?: lightScheme
-        MaterialTheme(
-            colorScheme = colorScheme,
-        ) {
-            Surface {
-                //TestApp()
-                ActualApp()
-            }
-        }
+        ActualApp()
     }
 }
 
 @Composable
 fun ActualApp(
     networkHealthStore: NetworkHealthStore = koinInject(),
-    authService: AuthService = koinInject()
+    authService: AuthService = koinInject(),
+    settings: Settings = koinInject()
 ) {
+    val authState by authService.state.collectAsState()
     val networkStatus by networkHealthStore.networkHealth.collectAsState()
-    Column(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = !networkStatus,
-            enter = slideInVertically() + fadeIn(),
-            exit = slideOutVertically() + fadeOut()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onError)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_error_filled),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "Server unreachable, check your internet connection",
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-        }
+    val isDarkModeSetting by settings.isDarkMode.state.collectAsState()
+    val isSystemDark = isSystemInDarkTheme()
+    val isDarkMode = isDarkModeSetting ?: isSystemDark
 
-        val authState by authService.state.collectAsState()
-        LaunchedEffect(Unit) {
-            authService.verifySession()
-        }
-        when (authState) {
-            is AuthState.Loading -> LoadingView()
-            is AuthState.SignedIn -> HomeView()
-            is AuthState.SignedOut -> LoginView()
+    MaterialTheme(
+        colorScheme = if (isDarkMode) darkScheme else lightScheme
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(
+                visible = !networkStatus,
+                enter = slideInVertically() + fadeIn(),
+                exit = slideOutVertically() + fadeOut()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.onError)
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_error_filled),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Server unreachable, check your internet connection",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                authService.verifySession()
+            }
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                AnimatedContent(
+                    targetState = authState,
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    }
+                ) { targetAuthState ->
+                    when (targetAuthState) {
+                        is AuthState.Loading -> LoadingView()
+                        is AuthState.SignedIn -> HomeView()
+                        is AuthState.SignedOut -> LoginView()
+                    }
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import org.koin.dsl.module
 
 val homeModule = module {
     viewModelOf(::HomeViewModel)
+    viewModelOf(::ProfileViewModel)
 }
 
 class HomeViewModel : MviViewModel<HomeState, HomeAction>() {

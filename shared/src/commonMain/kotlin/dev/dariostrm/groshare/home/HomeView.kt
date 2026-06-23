@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.dariostrm.groshare.debts.DebtsView
 import dev.dariostrm.groshare.groceries.GroceriesView
 import groshare.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -116,8 +117,8 @@ fun HomeComponent(
         ) {
             when (selectedTab) {
                 Tabs.Groceries -> GroceriesView()
-                Tabs.Debts -> Text("Debts Page")
-                Tabs.Profile -> Text("Profile Page")
+                Tabs.Debts -> DebtsView()
+                Tabs.Profile -> ProfileView()
             }
         }
     }
