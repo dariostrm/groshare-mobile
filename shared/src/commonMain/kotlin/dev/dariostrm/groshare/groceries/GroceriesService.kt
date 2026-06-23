@@ -120,7 +120,7 @@ class GroceriesServiceImpl(
                     purchases = purchases.map {
                         GroceryPurchase(
                             id = it.key,
-                            priceInCents = (it.value * 100).toLong()
+                            priceInCents = kotlin.math.round((it.value * 100).toDouble()).toLong()
                         )
                     }
                 )
