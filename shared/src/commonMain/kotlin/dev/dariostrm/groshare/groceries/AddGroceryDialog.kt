@@ -57,7 +57,9 @@ fun AddGroceryDialog(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done,
                     ),
-                    onKeyboardAction = { onAddGroceryClick(groceryName) }
+                    onKeyboardAction = {
+                        if (groceryNameState.text.isNotEmpty()) onAddGroceryClick(groceryName)
+                    }
                 )
                 Spacer(Modifier.height(16.dp))
                 Row(
