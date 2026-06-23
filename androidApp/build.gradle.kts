@@ -29,8 +29,11 @@ android {
         applicationId = "dev.dariostrm.groshare"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = System.getenv("APP_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = System.getenv("APP_VERSION_NAME")
+            ?.removePrefix("v")
+            ?.takeIf { it.firstOrNull()?.isDigit() == true }
+            ?: "1.0.0"
     }
     packaging {
         resources {
