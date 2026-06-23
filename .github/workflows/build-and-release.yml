@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -30,7 +30,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Android Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Sign Android Release APK
         uses: r0adkll/sign-android-release@v1
@@ -61,7 +61,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -73,7 +73,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Desktop Native Distribution
-        run: ./gradlew packageDistributionForCurrentOS
+        run: ./gradlew packageDistributionForCurrentOS --no-daemon
 
       - name: Upload Desktop Artifacts
         uses: actions/upload-artifact@v4
@@ -99,4 +99,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: "GroShare Release ${{ github.ref_name }}"
           body: "Automated release triggered by tag ${{ github.ref_name }}."
-          files: release-artifacts/*
+          files: release-artifacts/**/*
