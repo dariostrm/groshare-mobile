@@ -51,6 +51,9 @@ fun getHttpClient(
                     val token = secureSettings.authToken.value ?: return@loadTokens null
                     BearerTokens(token, null)
                 }
+                sendWithoutRequest { request ->
+                    request.url.host == "groshare.dariostrm.dev"
+                }
             }
         }
         install(ContentNegotiation) {

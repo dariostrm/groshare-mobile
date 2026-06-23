@@ -33,12 +33,17 @@ sealed interface LoginAction {
     data class PasswordChanged(val password: String) : LoginAction
     object PasswordLostFocus : LoginAction
     data object Login : LoginAction
+    data object Reset : LoginAction
 }
 
 @Composable
 fun LoginView(
     viewModel: LoginViewModel = koinViewModel(),
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.onAction(LoginAction.Reset)
+    }
+
     val state by viewModel.state.collectAsState()
 
     LoginComponent(
@@ -75,14 +80,17 @@ fun LoginPreview() {
             text = "Login",
             style = MaterialTheme.typography.titleLarge,
         )
-        Text(buildAnnotatedString {
-            append("Don't have an account? ")
-            withLink(
-                LinkAnnotation.Url("https://groshare.dariostrm.dev/pages/register.html")
-            ) {
-                append("Sign up")
-            }
-        })
+        Text(
+            text = buildAnnotatedString {
+                append("Don't have an account? ")
+                withLink(
+                    LinkAnnotation.Url("https://groshare.dariostrm.dev/pages/register.html")
+                ) {
+                    append("Sign up")
+                }
+            },
+            color = MaterialTheme.colorScheme.onBackground
+        )
 
         var usernameEverFocused by remember { mutableStateOf(false) }
         OutlinedTextField(

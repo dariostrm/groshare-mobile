@@ -3,6 +3,7 @@ package dev.dariostrm.groshare.di
 import dev.dariostrm.groshare.settings.SecureSettings
 import dev.dariostrm.groshare.settings.Settings
 import dev.dariostrm.groshare.auth.authModule
+import dev.dariostrm.groshare.debts.debtsModule
 import dev.dariostrm.groshare.getHttpClient
 import dev.dariostrm.groshare.groceries.groceriesModule
 import dev.dariostrm.groshare.home.homeModule
@@ -27,6 +28,7 @@ val sharedModule = listOf(
     homeModule,
     authModule,
     groceriesModule,
+    debtsModule,
     appModule
 )
 
