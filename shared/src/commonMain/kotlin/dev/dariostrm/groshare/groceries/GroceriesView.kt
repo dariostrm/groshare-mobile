@@ -1,12 +1,13 @@
 package dev.dariostrm.groshare.groceries
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -17,20 +18,21 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import groshare.shared.generated.resources.Res
-import groshare.shared.generated.resources.ic_account_circle_filled
 import groshare.shared.generated.resources.ic_add
 import groshare.shared.generated.resources.ic_delete
-import groshare.shared.generated.resources.ic_error_filled
 import groshare.shared.generated.resources.ic_more_vert
 import groshare.shared.generated.resources.ic_refresh
+import groshare.shared.generated.resources.ic_shopping_cart_filled
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -39,6 +41,7 @@ sealed interface GroceriesAction {
     data object Refresh : GroceriesAction
     data class DeleteGrocery(val id: Long) : GroceriesAction
     data object GroceriesErrorShown : GroceriesAction
+    data class ToggleGrocerySelection(val id: Long) : GroceriesAction
 }
 
 @Composable
@@ -78,13 +81,14 @@ fun GroceriesComponent(
             tryAgain = { onAction(GroceriesAction.Refresh) }
         )
     } else {
-        var isDialogOpen by remember { mutableStateOf(false) }
-        if (isDialogOpen) {
+        var isAddDialogOpen by remember { mutableStateOf(false) }
+        var isBuyDialogOpen by remember { mutableStateOf(false) }
+        if (isAddDialogOpen) {
             AddGroceryDialog(
-                onDismiss = { isDialogOpen = false },
+                onDismiss = { isAddDialogOpen = false },
                 onAddGroceryClick = {
                     onAction(GroceriesAction.AddGrocery(it))
-                    isDialogOpen = false
+                    isAddDialogOpen = false
                 }
             )
         }
@@ -97,8 +101,26 @@ fun GroceriesComponent(
         }
         Scaffold(
             floatingActionButton = {
-                FloatingActionButton(onClick = { isDialogOpen = true }) {
-                    Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "Add Grocery")
+                AnimatedContent(
+                    targetState = state.selectedGroceries.isNotEmpty(),
+                    label = "fab_morph"
+                ) { isSelecting ->
+                    if (isSelecting) {
+                        ExtendedFloatingActionButton(
+                            onClick = { isBuyDialogOpen = true },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_shopping_cart_filled),
+                                    contentDescription = "Buy Groceries"
+                                )
+                            },
+                            text = { Text("Checkout (${state.selectedGroceries.size})") }
+                        )
+                    } else {
+                        FloatingActionButton(onClick = { isAddDialogOpen = true }) {
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "Add Grocery")
+                        }
+                    }
                 }
             },
             snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -109,7 +131,7 @@ fun GroceriesComponent(
                 onRefresh = { onAction(GroceriesAction.Refresh) }
             ) {
                 if (state.groceries.isEmpty())
-                    NoGroceries(onAddGroceryClick = { isDialogOpen = true })
+                    NoGroceries(onAddGroceryClick = { isAddDialogOpen = true })
                 else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -120,7 +142,10 @@ fun GroceriesComponent(
                         ) {
                             GroceryItem(
                                 grocery = it,
-                                onDeleteClick = { id -> onAction(GroceriesAction.DeleteGrocery(id)) }
+                                isSelected = it.id in state.selectedGroceries,
+                                modifier = Modifier.padding(16.dp, 4.dp),
+                                onDeleteClick = { id -> onAction(GroceriesAction.DeleteGrocery(id)) },
+                                onSelectionToggled = { onAction(GroceriesAction.ToggleGrocerySelection(it.id)) },
                             )
                         }
                     }
@@ -184,16 +209,23 @@ fun AddGroceryDialog(
 @Composable
 fun GroceryItem(
     grocery: Grocery,
-    onDeleteClick: (Long) -> Unit,
+    isSelected: Boolean = false,
     modifier: Modifier = Modifier,
+    onDeleteClick: (Long) -> Unit,
+    onSelectionToggled: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                else Color.Transparent
+            )
+            .selectable(selected = isSelected, onClick = onSelectionToggled)
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
 
         UsernameAvatar(

@@ -24,20 +24,19 @@ fun UsernameAvatar(
     isDarkMode: Boolean = false,
     size: Dp = 40.dp
 ) {
-    // remember() caches the color math so it only recalculates if the username or theme toggles
     val colors = remember(username, isDarkMode) {
         val cleanName = username.trim().ifEmpty { "?" }
         val hash = cleanName.hashCode()
         val hue = (((hash % 360) + 360) % 360).toFloat()
 
-        val saturation = if (isDarkMode) 0.53f else 0.73f
+        val bgSaturation = if (isDarkMode) 0.53f else 0.73f
         val textSaturation = if (isDarkMode) 0.79f else 0.52f
         val bgLightness = if (isDarkMode) 0.26f else 0.79f
         val textLightness = if (isDarkMode) 0.80f else 0.36f
 
         Pair(
-            hslToComposeColor(hue, saturation, bgLightness),
-            hslToComposeColor(hue, saturation, textLightness)
+            hslToComposeColor(hue, bgSaturation, bgLightness),
+            hslToComposeColor(hue, textSaturation, textLightness)
         )
     }
 
@@ -56,7 +55,7 @@ fun UsernameAvatar(
             text = displayLetter,
             color = colors.second,
             fontWeight = FontWeight.Medium,
-            // Dynamically size the font to fill exactly 50% of the circle's diameter
+            //50% of the circle
             fontSize = (size.value * 0.5f).sp
         )
     }

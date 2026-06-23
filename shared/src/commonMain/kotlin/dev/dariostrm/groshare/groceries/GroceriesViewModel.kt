@@ -12,6 +12,7 @@ data class GroceriesState(
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val groceriesError: String? = null,
+    val selectedGroceries: Set<Long> = emptySet(),
 )
 
 class GroceriesViewModel(
@@ -61,6 +62,17 @@ class GroceriesViewModel(
                 }
             }
             is GroceriesAction.GroceriesErrorShown -> updateState { copy(groceriesError = null) }
+            is GroceriesAction.ToggleGrocerySelection -> {
+                updateState {
+                    copy(
+                        selectedGroceries = if (action.id in selectedGroceries) {
+                            selectedGroceries - action.id
+                        } else {
+                            selectedGroceries + action.id
+                        }
+                    )
+                }
+            }
         }
     }
 
