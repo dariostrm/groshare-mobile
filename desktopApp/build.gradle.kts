@@ -21,15 +21,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "GroShare"
+            packageName = "dev.dariostrm.groshare"
             packageVersion = System.getenv("GITHUB_REF_NAME")
                 ?.removePrefix("v")
                 ?.takeIf { it.firstOrNull()?.isDigit() == true }
                 ?: "1.0.0"
-
-            macOS {
-                bundleID = "dev.dariostrm.groshare"
-            }
 
             modules("jdk.unsupported", "java.management")
         }
