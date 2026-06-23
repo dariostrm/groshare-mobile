@@ -1,36 +1,52 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
+# GroShare
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+GroShare is a collaborative grocery list application for Android, iOS, and Desktop. It allows users to manage a shared shopping list and track expenses among a group.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-    - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-      For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-      the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-      Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-      folder is the appropriate location.
+## Usage
 
-### Running the apps
+- **Login**: You can use the credentials `testuser` and `testpassword`, or register through the website.
+- Click the (+) button, enter the item name in the dialog, and click OK.
+- While shopping, click on items to select them.
+- Once items are selected, click the **cart icon** (which replaces the plus icon) to open the checkout dialog.
+- Enter the total price to split it equally among selected items. Switch to **itemized** mode to edit individual prices.
+- View your net balance and individual debts on the **Debts** page.
+- Click **Settle** on the debts page when you gave money back to the person you owed it.
+- **Profile**: Change the application theme (light, dark, or system) or log out
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and
-options:
+## Build and Deploy
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- Desktop app:
-    - Hot reload: `./gradlew :desktopApp:hotRun --auto`
-    - Standard run: `./gradlew :desktopApp:run`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+You can also download a release on the GitHub page
+[Here](https://github.com/dariostrm/groshare-mobile/)
 
-### Running tests
+### Prerequisites
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+- **JDK 21**
+- **Android SDK** (API 36)
+- **Android Studio** or **IntelliJ IDEA**
+- **Xcode** (Required for iOS builds on macOS)
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :shared:jvmTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+### Setup
 
----
+1. Clone the repository to your local machine
+```bash
+git clone https://github.com/dariostrm/groshare-mobile.git
+```
+2. Open the project in your IDE.
+3. Allow Gradle to sync and download dependencies.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### Running the Application
+
+#### Android
+Use the `androidApp` run configuration in your IDE, or run:
+```bash
+./gradlew :androidApp:installDebug
+```
+
+#### Desktop
+Use the `desktopApp` run configuration in your IDE, or run:
+```bash
+./gradlew :desktopApp:run
+```
+
+#### iOS
+Open `iosApp/iosApp.xcodeproj` in Xcode and click the **Run** button.
