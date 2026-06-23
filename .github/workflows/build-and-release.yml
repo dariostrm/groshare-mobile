@@ -79,7 +79,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Desktop Native Distribution
-        run: ./gradlew packageDistributionForCurrentOS --no-daemon
+        run: ./gradlew packageDistributionForCurrentOS --no-daemon --info
 
       - name: Upload Desktop Artifacts
         uses: actions/upload-artifact@v4

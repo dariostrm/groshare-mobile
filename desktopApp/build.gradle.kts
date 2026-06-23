@@ -26,6 +26,11 @@ compose.desktop {
                 ?.removePrefix("v")
                 ?.takeIf { it.firstOrNull()?.isDigit() == true }
                 ?: "1.0.0"
+
+            macOS {
+                bundleID = "dev.dariostrm.groshare"
+            }
+
             modules("jdk.unsupported", "java.management")
         }
     }
