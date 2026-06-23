@@ -8,10 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -19,16 +18,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import groshare.shared.generated.resources.Res
 import groshare.shared.generated.resources.ic_add
+import groshare.shared.generated.resources.ic_check
 import groshare.shared.generated.resources.ic_delete
 import groshare.shared.generated.resources.ic_more_vert
 import groshare.shared.generated.resources.ic_refresh
@@ -41,7 +38,8 @@ sealed interface GroceriesAction {
     data object Refresh : GroceriesAction
     data class DeleteGrocery(val id: Long) : GroceriesAction
     data object GroceriesErrorShown : GroceriesAction
-    data class ToggleGrocerySelection(val id: Long) : GroceriesAction
+    data class ToggleGrocerySelection(val grocery: Grocery) : GroceriesAction
+    data class BuyGroceries(val purchases: Map<Long, Float>) : GroceriesAction
 }
 
 @Composable
@@ -83,6 +81,16 @@ fun GroceriesComponent(
     } else {
         var isAddDialogOpen by remember { mutableStateOf(false) }
         var isBuyDialogOpen by remember { mutableStateOf(false) }
+        if (isBuyDialogOpen) {
+            BuyGroceriesDialog(
+                groceries = state.selectedGroceries.toList(),
+                onDismiss = { isBuyDialogOpen = false },
+                onSubmit = {
+                    onAction(GroceriesAction.BuyGroceries(it))
+                    isBuyDialogOpen = false
+                }
+            )
+        }
         if (isAddDialogOpen) {
             AddGroceryDialog(
                 onDismiss = { isAddDialogOpen = false },
@@ -142,10 +150,10 @@ fun GroceriesComponent(
                         ) {
                             GroceryItem(
                                 grocery = it,
-                                isSelected = it.id in state.selectedGroceries,
+                                isSelected = it in state.selectedGroceries,
                                 modifier = Modifier.padding(16.dp, 4.dp),
                                 onDeleteClick = { id -> onAction(GroceriesAction.DeleteGrocery(id)) },
-                                onSelectionToggled = { onAction(GroceriesAction.ToggleGrocerySelection(it.id)) },
+                                onSelectionToggled = { onAction(GroceriesAction.ToggleGrocerySelection(it)) },
                             )
                         }
                     }
@@ -156,54 +164,116 @@ fun GroceriesComponent(
 }
 
 @Composable
-fun AddGroceryDialog(
+fun BuyGroceriesDialog(
+    groceries: List<Grocery>,
     onDismiss: () -> Unit,
-    onAddGroceryClick: (String) -> Unit,
+    onSubmit: (Map<Long, Float>) -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        val focusRequester = remember { FocusRequester() }
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-        Card(
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "What do you need bought?",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                val groceryNameState = rememberTextFieldState()
-                val groceryName = groceryNameState.text.toString()
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+    var equalTotalInput by remember { mutableStateOf("") }
+
+    var itemizedInputs by remember {
+        mutableStateOf(groceries.map { it.id }.associateWith { "" })
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Checkout (${groceries.size} items)") },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TabRow(selectedTabIndex = selectedTabIndex) {
+                    Tab(
+                        selected = selectedTabIndex == 0,
+                        onClick = { selectedTabIndex = 0 },
+                        text = { Text("Split Equally") }
+                    )
+                    Tab(
+                        selected = selectedTabIndex == 1,
+                        onClick = { selectedTabIndex = 1 },
+                        text = { Text("Itemized") }
+                    )
                 }
-                TextField(
-                    state = groceryNameState,
-                    lineLimits = TextFieldLineLimits.SingleLine,
-                    modifier = Modifier.focusRequester(focusRequester),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done,
-                    ),
-                    onKeyboardAction = { onAddGroceryClick(groceryName) }
-                )
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.align(Alignment.End),
-                ) {
-                    OutlinedButton(onClick = onDismiss) {
-                        Text("Cancel")
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = { onAddGroceryClick(groceryName) },
-                        enabled = groceryNameState.text.isNotEmpty(),
-                    ) {
-                        Text("Add")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (selectedTabIndex == 0) {
+                    OutlinedTextField(
+                        value = equalTotalInput,
+                        onValueChange = { equalTotalInput = it },
+                        label = { Text("Total Receipt Amount ($)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    val parsedTotal = equalTotalInput.toFloatOrNull() ?: 0f
+                    val perItem = if (groceries.isNotEmpty()) parsedTotal / groceries.size else 0f
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Each item: $${String.format("%.2f", perItem)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        groceries.forEach { grocery ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(grocery.name, modifier = Modifier.weight(1f))
+                                OutlinedTextField(
+                                    value = itemizedInputs[grocery.id] ?: "",
+                                    onValueChange = { newVal ->
+                                        itemizedInputs = itemizedInputs.toMutableMap().apply { put(grocery.id, newVal) }
+                                    },
+                                    prefix = { Text("$") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                    singleLine = true,
+                                    modifier = Modifier.width(120.dp)
+                                )
+                            }
+                        }
+
+                        val currentSum = itemizedInputs.values.sumOf { (it.toFloatOrNull() ?: 0f).toDouble() }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Total: $${String.format("%.2f", currentSum)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.End)
+                        )
                     }
                 }
             }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (selectedTabIndex == 0) {
+                        val total = equalTotalInput.toFloatOrNull() ?: 0f
+                        val split = total / groceries.size
+                        val payload = groceries.map { it.id }.associateWith { split }
+                        onSubmit(payload)
+                    } else {
+                        val payload = itemizedInputs.mapValues { it.value.toFloatOrNull() ?: 0f }
+                        onSubmit(payload)
+                    }
+                }
+            ) {
+                Text("Submit")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
-    }
+    )
 }
 
 @Composable
@@ -228,11 +298,31 @@ fun GroceryItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        UsernameAvatar(
-            username = grocery.addedByUsername,
-            modifier = Modifier,
-            isDarkMode = isSystemInDarkTheme()
-        )
+        AnimatedContent(
+            targetState = isSelected
+        ) { isSelected ->
+            if (isSelected) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_check),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            } else {
+                UsernameAvatar(
+                    username = grocery.addedByUsername,
+                    modifier = Modifier,
+                    isDarkMode = isSystemInDarkTheme()
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 

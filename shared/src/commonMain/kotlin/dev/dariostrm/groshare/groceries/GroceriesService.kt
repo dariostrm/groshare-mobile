@@ -20,20 +20,21 @@ data class Grocery(
 )
 
 interface GroceriesService {
-    val groceries: StateFlow<List<Grocery>>
+    val groceries: StateFlow<List<Grocery>?>
     val error: StateFlow<String?>
     suspend fun refreshGroceries()
     fun startPolling()
     fun stopPolling()
     suspend fun addGrocery(groceryName: String): Result<Unit, String>
     suspend fun deleteGrocery(groceryId: Long): Result<Unit, String>
+    suspend fun buyGroceries(purchases: Map<Long, Float>): Result<Unit, String>
 }
 
 class GroceriesServiceImpl(
     private val httpClient: HttpClient,
     private val pollingInterval: Duration = 10.seconds,
 ) : GroceriesService {
-    private val _groceries = MutableStateFlow<List<Grocery>>(emptyList())
+    private val _groceries = MutableStateFlow<List<Grocery>?>(null)
     override val groceries = _groceries.asStateFlow()
 
     private val _error = MutableStateFlow<String?>(null)
@@ -101,6 +102,30 @@ class GroceriesServiceImpl(
             method = HttpMethod.Delete
             url("apartment/groceries/$groceryId")
         }.ifError { return@deleteGrocery err(it) }
+        refreshGroceries()
+        return ok()
+    }
+
+    @Serializable
+    data class BuyGroceryRequest(val purchases: List<GroceryPurchase>)
+    @Serializable
+    data class GroceryPurchase(val id: Long, val priceInCents: Long)
+
+    override suspend fun buyGroceries(purchases: Map<Long, Float>): Result<Unit, String> {
+        httpClient.safeRequest<Unit> {
+            method = HttpMethod.Post
+            url("apartment/groceries/buy")
+            setBody(
+                BuyGroceryRequest(
+                    purchases = purchases.map {
+                        GroceryPurchase(
+                            id = it.key,
+                            priceInCents = (it.value * 100).toLong()
+                        )
+                    }
+                )
+            )
+        }.ifError { return@buyGroceries err(it) }
         refreshGroceries()
         return ok()
     }

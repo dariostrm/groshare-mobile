@@ -3,8 +3,12 @@ package dev.dariostrm.groshare.groceries
 import androidx.lifecycle.viewModelScope
 import dev.dariostrm.groshare.shared.MviViewModel
 import dev.dariostrm.groshare.shared.ifError
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class GroceriesState(
@@ -12,7 +16,7 @@ data class GroceriesState(
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val groceriesError: String? = null,
-    val selectedGroceries: Set<Long> = emptySet(),
+    val selectedGroceries: Set<Grocery> = emptySet(),
 )
 
 class GroceriesViewModel(
@@ -23,10 +27,18 @@ class GroceriesViewModel(
 
     init {
         groceriesService.groceries.onEach { groceries ->
-            updateState { copy(groceries = groceries, isLoading = false, isRefreshing = false) }
+            if (groceries == null) return@onEach
+            updateState {
+                copy(
+                    groceries = groceries,
+                    selectedGroceries = selectedGroceries.filter { it in groceries }.toSet(),
+                    isLoading = false,
+                    isRefreshing = false
+                )
+            }
         }.launchIn(viewModelScope)
         groceriesService.error.onEach { error ->
-            updateState { copy(groceriesError = error, isLoading = false, isRefreshing = false) }
+            updateState { copy(groceriesError = error, isRefreshing = false, isLoading = if (error != null) false else isLoading) }
         }.launchIn(viewModelScope)
         groceriesService.startPolling()
     }
@@ -65,15 +77,22 @@ class GroceriesViewModel(
             is GroceriesAction.ToggleGrocerySelection -> {
                 updateState {
                     copy(
-                        selectedGroceries = if (action.id in selectedGroceries) {
-                            selectedGroceries - action.id
+                        selectedGroceries = if (action.grocery in selectedGroceries) {
+                            selectedGroceries - action.grocery
                         } else {
-                            selectedGroceries + action.id
+                            selectedGroceries + action.grocery
                         }
                     )
                 }
             }
+            is GroceriesAction.BuyGroceries -> {
+                viewModelScope.launch {
+                    updateState { copy(isRefreshing = true) }
+                    groceriesService.buyGroceries(action.purchases)
+                        .ifError { err -> updateState { copy(groceriesError = err) } }
+                    updateState { copy(isRefreshing = false) }
+                }
+            }
         }
     }
-
 }
