@@ -1,8 +1,10 @@
 package dev.dariostrm.groshare.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,15 +27,6 @@ import groshare.shared.generated.resources.ic_visibility_off_filled
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
-data class LoginState(
-    val username: String = "",
-    val usernameError: String? = null,
-    val password: String = "",
-    val passwordError: String? = null,
-    val isLoading: Boolean = false,
-    val loginError: String? = null,
-)
-
 sealed interface LoginAction {
     data class UsernameChanged(val username: String) : LoginAction
     data object UsernameLostFocus : LoginAction
@@ -45,17 +38,8 @@ sealed interface LoginAction {
 @Composable
 fun LoginView(
     viewModel: LoginViewModel = koinViewModel(),
-    onLoggedIn: (username: String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is LoginEvent.LoggedIn -> onLoggedIn(event.username)
-            }
-        }
-    }
 
     LoginComponent(
         state = state,
@@ -74,16 +58,19 @@ fun LoginPreview() {
     LoginComponent(state, onAction = {})
 }
 
-@Composable
-fun LoginComponent(
-    state: LoginState,
-    onAction: (LoginAction) -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    @Composable
+    fun LoginComponent(
+        state: LoginState,
+        onAction: (LoginAction) -> Unit,
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        ) {
         Text(
             text = "Login",
             style = MaterialTheme.typography.titleLarge,

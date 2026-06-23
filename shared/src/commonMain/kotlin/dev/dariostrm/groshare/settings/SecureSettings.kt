@@ -1,4 +1,4 @@
-package dev.dariostrm.groshare
+package dev.dariostrm.groshare.settings
 
 import eu.anifantakis.lib.ksafe.KSafe
 import eu.anifantakis.lib.ksafe.KSafeWriteMode

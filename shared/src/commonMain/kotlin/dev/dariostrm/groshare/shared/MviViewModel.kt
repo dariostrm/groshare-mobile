@@ -1,4 +1,4 @@
-package dev.dariostrm.groshare
+package dev.dariostrm.groshare.shared
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,29 +12,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
-abstract class MviViewModel<S, A, E> : ViewModel() {
+abstract class MviViewModel<S, A> : ViewModel() {
 
-    protected abstract fun setInitialState(): S
+    protected abstract val initialState: S
 
-    private val _state by lazy { MutableStateFlow(setInitialState()) }
+    private val _state by lazy { MutableStateFlow(initialState) }
     val state: StateFlow<S> by lazy { _state.asStateFlow() }
-
-    private val _events = MutableSharedFlow<E>()
-    val events: SharedFlow<E> = _events.asSharedFlow()
 
     abstract fun onAction(action: A)
 
     protected fun updateState(reducer: S.() -> S) {
         _state.update(reducer)
-    }
-
-    protected fun emitEvent(event: E) {
-        viewModelScope.launch {
-            sendEvent(event)
-        }
-    }
-
-    protected suspend fun sendEvent(event: E) {
-        _events.emit(event)
     }
 }

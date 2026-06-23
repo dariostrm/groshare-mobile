@@ -1,39 +1,39 @@
 package dev.dariostrm.groshare.auth
 
 import androidx.lifecycle.viewModelScope
-import dev.dariostrm.groshare.MviViewModel
-import dev.dariostrm.groshare.ifError
-import dev.dariostrm.groshare.ifOk
-import dev.dariostrm.groshare.then
+import dev.dariostrm.groshare.shared.MviViewModel
+import dev.dariostrm.groshare.shared.ifError
+import dev.dariostrm.groshare.shared.ifOk
 import kotlinx.coroutines.launch
 
-sealed interface LoginEvent {
-    data class LoggedIn(val username: String) : LoginEvent
-}
+data class LoginState(
+    val username: String = "",
+    val usernameError: String? = null,
+    val password: String = "",
+    val passwordError: String? = null,
+    val isLoading: Boolean = false,
+    val loginError: String? = null,
+)
 
 class LoginViewModel(
     private val authService: AuthService,
-) : MviViewModel<LoginState, LoginAction, LoginEvent>() {
+) : MviViewModel<LoginState, LoginAction>() {
 
-    override fun setInitialState(): LoginState = LoginState()
+    override val initialState = LoginState()
 
     override fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.Login -> {
-//                val uError = state.value.username.validateUsername()
-//                val pError = state.value.password.validatePassword()
-//                updateState {
-//                    copy(usernameError = uError, passwordError = pError)
-//                }
-//                if (uError != null || pError != null) return
+                val uError = state.value.username.validateUsername()
+                val pError = state.value.password.validatePassword()
+                updateState {
+                    copy(usernameError = uError, passwordError = pError)
+                }
+                if (uError != null || pError != null) return
 
                 updateState { copy(isLoading = true, loginError = null) }
                 viewModelScope.launch {
                     authService.login(state.value.username, state.value.password)
-                        .ifOk {
-                            updateState { copy(isLoading = false, loginError = null) }
-                            sendEvent(LoginEvent.LoggedIn(state.value.username))
-                        }
                         .ifError { error -> updateState { copy(isLoading = false, loginError = error) } }
                 }
             }
