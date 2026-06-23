@@ -256,6 +256,7 @@ fun BuyGroceriesDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    if (groceries.isEmpty()) return@Button
                     if (selectedTabIndex == 0) {
                         val total = equalTotalInput.toFloatOrNull() ?: 0f
                         val split = total / groceries.size
@@ -269,7 +270,6 @@ fun BuyGroceriesDialog(
             ) {
                 Text("Submit")
             }
-        },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
